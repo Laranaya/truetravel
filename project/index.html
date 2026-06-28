@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueTravel - Dignity in Travel Transparency</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (Loads basic layout utilities) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --transition-speed: 0.6s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* --- DARK COSMIC / SPACE THEME --- */
+        [data-theme="dark"] {
+            --bg-base: linear-gradient(135deg, #020617 0%, #070a13 50%, #0f0b21 100%);
+            --bg-surface: rgba(15, 23, 42, 0.55);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(0, 210, 255, 0.5);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-airline: #00d2ff;
+            --accent-hotel: #818cf8;
+            --glow-airline: rgba(0, 210, 255, 0.2);
+            --glow-hotel: rgba(129, 140, 248, 0.2);
+            --shadow-base: rgba(0, 0, 0, 0.9);
+            --window-lit: #fef08a;
+            --card-active: rgba(15, 23, 42, 0.85);
+        }
+
+        /* --- LIGHT / DAY SKY THEME --- */
+        [data-theme="light"] {
+            --bg-base: linear-gradient(135deg, #bae6fd 0%, #e0f2fe 50%, #f0f9ff 100%);
+            --bg-surface: rgba(255, 255, 255, 0.65);
+            --border-glass: rgba(15, 23, 42, 0.1);
+            --border-active: rgba(14, 165, 233, 0.5);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-airline: #0284c7;
+            --accent-hotel: #4f46e5;
+            --glow-airline: rgba(2, 132, 199, 0.12);
+            --glow-hotel: rgba(79, 70, 229, 0.12);
+            --shadow-base: rgba(15, 23, 42, 0.05);
+            --window-lit: #f97316;
+            --card-active: rgba(255, 255, 255, 0.98);
+        }
+
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1), color var(--transition-speed) ease;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- DYNAMIC ENVIRONMENT ENGINE --- */
+        .sky-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite ease-in-out;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        [data-theme="dark"] .star {
+            opacity: 0.6;
+        }
+
+        .cloud {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 70%, transparent 100%);
+            filter: blur(16px);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            animation: drift 32s linear infinite;
+        }
+
+        [data-theme="light"] .cloud {
+            opacity: 0.75;
+        }
+
+        /* --- PREMIUM GLASSMORPHISM --- */
+        .glass-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            box-shadow: 0 16px 40px -10px var(--shadow-base), inset 0 1px 2px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        background 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- GLOWING HOVER DIRECTIONS --- */
+        .airline-hover:hover {
+            border-color: var(--accent-airline);
+            box-shadow: 0 0 40px var(--glow-airline), inset 0 1px 2px 0 rgba(255, 255, 255, 0.15);
+            transform: translateY(-6px);
+        }
+
+        .hotel-hover:hover {
+            border-color: var(--accent-hotel);
+            box-shadow: 0 0 40px var(--glow-hotel), inset 0 1px 2px 0 rgba(255, 255, 255, 0.15);
+            transform: translateY(-6px);
+        }
+
+        /* --- ACCESSIBILITY TILE CHECKBOXES (ELITE UPGRADE) --- */
+        .interactive-checkbox {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-checkbox:hover {
+            border-color: var(--border-active);
+            background: var(--card-active);
+            transform: scale(1.02);
+        }
+
+        /* Hide standard checkbox completely */
+        .interactive-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        /* Custom glow borders and backgrounds for active checkboxes */
+        .interactive-checkbox.checked-airline {
+            border-color: var(--accent-airline);
+            background: rgba(0, 210, 255, 0.05);
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.15), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+
+        .interactive-checkbox.checked-hotel {
+            border-color: var(--accent-hotel);
+            background: rgba(129, 140, 248, 0.05);
+            box-shadow: 0 0 25px rgba(129, 140, 248, 0.15), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+
+        /* --- ANIMATED ASSETS (SOARING PLANE & CUSTOM WINDOWS) --- */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.15; transform: scale(0.8); }
+            50% { opacity: 0.85; transform: scale(1.25); }
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(-300px); }
+            100% { transform: translateX(calc(100vw + 300px)); }
+        }
+
+        @keyframes flyPlaneCurved {
+            0% { transform: translate(-15vw, 15vh) rotate(15deg); opacity: 0; }
+            5% { opacity: 0.8; }
+            40% { transform: translate(45vw, 3vh) rotate(-2deg); }
+            80% { opacity: 0.8; }
+            100% { transform: translate(115vw, 12vh) rotate(-12deg); opacity: 0; }
+        }
+
+        .anim-plane {
+            position: absolute;
+            z-index: 2;
+            pointer-events: none;
+            animation: flyPlaneCurved 22s linear infinite;
+        }
+
+        .window-glass {
+            transition: fill 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+        }
+
+        /* --- ADORABLE FLOATING MASCOT "SKY" --- */
+        .mascot-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .mascot-body {
+            width: 90px;
+            height: 90px;
+            cursor: pointer;
+            pointer-events: auto;
+            animation: mascotFloat 3.5s ease-in-out infinite;
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.25));
+            transition: transform 0.3s ease;
+        }
+
+        .mascot-body:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .mascot-bubble {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 12px 18px;
+            max-width: 220px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            pointer-events: auto;
+            opacity: 1;
+            transform: scale(1);
+            transform-origin: bottom right;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .mascot-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: 15px;
+            right: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid var(--border-glass);
+            transform: translateY(50%);
+        }
+
+        @keyframes mascotFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
+        }
+
+        @keyframes blushPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.95; }
+        }
+
+        .mascot-blush {
+            animation: blushPulse 2.5s ease-in-out infinite;
+        }
+
+        /* Floating +10 XP Indicator Animation */
+        @keyframes floatingXP {
+            0% { transform: translate(0, 0); opacity: 1; }
+            100% { transform: translate(0, -40px); opacity: 0; }
+        }
+        .xp-gain-popup {
+            animation: floatingXP 1s ease-out forwards;
+        }
+
+        /* Responsive changes for mobile viewports */
+        @media (max-width: 768px) {
+            .mascot-container {
+                bottom: 15px;
+                right: 15px;
+                scale: 0.85;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DYNAMIC ENVIRONMENT LAYER -->
+    <div class="sky-canvas" id="sky-canvas"></div>
+
+    <!-- COOL UPDATED PLANE WITH GLOWING VAPOR PATH -->
+    <div class="anim-plane w-28 h-12 text-cyan-400">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full filter drop-shadow-[0_0_15px_var(--glow-airline)] opacity-80">
+            <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+    </div>
+
+    <!-- MAIN HEADER COMPONENT -->
+    <header class="relative z-50 border-b border-white/5 backdrop-blur-xl bg-slate-950/15 py-5 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            
+            <!-- Logo Brand Box (Meet "Jet" the Airplane Mascot!) -->
+            <div class="flex items-center gap-3.5 cursor-pointer group" onclick="showPage('home')">
+                <div class="w-12 h-12 transition duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                    <!-- Cute Airplane Mascot Logo -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+                        <!-- Tail Fin -->
+                        <path d="M 15,50 L 5,20 L 35,35 Z" fill="#38bdf8" stroke="#bae6fd" stroke-width="2" stroke-linejoin="round"/>
+                        
+                        <!-- Back Wing -->
+                        <path d="M 35,60 L 20,85 L 55,65 Z" fill="#38bdf8" stroke="#bae6fd" stroke-width="2" stroke-linejoin="round"/>
+
+                        <!-- Main Body (chubby fuselage) -->
+                        <rect x="10" y="30" width="80" height="40" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+                        
+                        <!-- Front Wing -->
+                        <path d="M 40,50 L 65,90 L 75,60 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" stroke-linejoin="round"/>
+
+                        <!-- Cockpit Window -->
+                        <path d="M 65,30 L 75,30 C 85,30 90,38 90,45 L 65,45 Z" fill="#bae6fd" opacity="0.7"/>
+
+                        <!-- Cute Expressive Eyes (Winking/Happy) -->
+                        <path d="M 66,48 Q 68,45 70,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                        <path d="M 80,48 Q 82,45 84,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                        
+                        <!-- Smile -->
+                        <path d="M 72,54 Q 75,58 78,54" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round" />
+                        
+                        <!-- Rosy Pink Cheeks -->
+                        <circle cx="64" cy="54" r="4.5" fill="#ff8da1" opacity="0.8" />
+                        <circle cx="86" cy="54" r="4.5" fill="#ff8da1" opacity="0.8" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight">TrueTravel</h1>
+                    <span class="text-[9px] block uppercase tracking-[0.25em] text-cyan-400 font-extrabold">100% Honest Pricing</span>
+                </div>
+            </div>
+
+            <!-- Theme Switcher & Menu Links -->
+            <div class="flex items-center gap-8">
+                <nav class="hidden md:flex gap-8">
+                    <button onclick="showPage('home')" class="hover:text-cyan-400 font-semibold transition text-sm tracking-wide">Home Hub</button>
+                    <button onclick="showPage('airlines')" class="hover:text-cyan-400 font-semibold transition text-sm tracking-wide">Airlines</button>
+                    <button onclick="showPage('hotels')" class="hover:text-indigo-400 font-semibold transition text-sm tracking-wide">Hotels</button>
+                </nav>
+
+                <div class="h-6 w-[1px] bg-white/10 hidden md:block"></div>
+
+                <!-- Premium Theme Switcher -->
+                <button onclick="toggleTheme()" class="p-3 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition duration-300 shadow-inner group" id="theme-toggler">
+                    <i data-lucide="sun" class="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" id="theme-toggle-icon"></i>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- MAIN CANVAS -->
+    <main class="relative z-10 max-w-7xl mx-auto px-6 py-12 flex-grow w-full">
+
+        <!-- ==================== PAGE: HOME PORTALS HUB ==================== -->
+        <div id="page-home" class="page transition duration-500">
+            
+            <!-- Hero Title Block -->
+            <div class="text-center max-w-4xl mx-auto mb-12 mt-6">
+                <span class="px-4 py-2 rounded-full bg-cyan-400/10 border border-cyan-400/20 text-[10px] font-extrabold uppercase tracking-[0.25em] text-cyan-400 inline-block mb-6 shadow-sm">
+                    The Dignity in Travel Initiative
+                </span>
+                <h2 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight mb-8">
+                    The price you see<br><span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent"> The trip you need. </span>
+                </h2>
+                <p class="text-md opacity-80 leading-relaxed max-w-2xl mx-auto font-light mb-8">
+                    Budget operators unbundle travel costs aggressively, hidden behind layers of checkout menus. We expose the final hidden pricing of carer alignments, medical handling, and accessible configurations upfront.
+                </p>
+
+                <!-- GAMIFICATION DASHBOARD (USER XP & REWARDS HUB) -->
+                <div class="glass-card max-w-3xl mx-auto p-6 border border-cyan-400/20 text-left relative overflow-hidden mb-12">
+                    <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyan-400/10 rounded-full blur-2xl"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                        <div class="flex items-center gap-4">
+                            <div class="p-3 bg-gradient-to-br from-cyan-400 to-indigo-500 rounded-2xl text-white shadow-lg relative">
+                                <i data-lucide="trophy" class="w-8 h-8"></i>
+                                <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-4 w-4 bg-cyan-500"></span>
+                                </span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold tracking-tight">Your Dignity Explorer Hub</h3>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs bg-cyan-400/20 text-cyan-400 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider text-[9px]" id="dashboard-level">Level 2: Fee Unmasker</span>
+                                    <span class="text-xs text-slate-400" id="dashboard-xp-text">140 / 300 XP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-48 flex flex-col gap-1.5">
+                            <div class="flex justify-between text-[10px] font-extrabold uppercase tracking-wider opacity-60">
+                                <span>Level Progress</span>
+                                <span id="xp-percentage">46%</span>
+                            </div>
+                            <div class="w-full h-3 bg-slate-950/40 rounded-full border border-white/5 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full transition-all duration-500" id="dashboard-xp-bar" style="width: 46.6%"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2.5">
+                            <div class="bg-black/20 rounded-xl px-4 py-2 border border-white/5 text-center">
+                                <div class="text-[10px] opacity-50 uppercase font-extrabold">Points</div>
+                                <div class="text-lg font-extrabold text-cyan-400" id="dashboard-points">2,450</div>
+                            </div>
+                            <button onclick="claimRewardsModal()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-white font-extrabold rounded-xl transition shadow-md hover:scale-[1.02] text-xs">
+                                Claim Rewards
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Reward Claiming / How to Earn -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/5 text-xs opacity-80">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                            <span>Audit checks: <strong>+10 XP</strong> each</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4 text-cyan-400"></i>
+                            <span>Verify facts: <strong>+50 XP</strong> each</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+                            <span>Airlines/Hotels sponsor rewards!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIGNITY GUARDIAN ASSISTANT (NON-NEGOTIABLES CHECKER) -->
+                <div class="glass-card max-w-3xl mx-auto p-6 border border-indigo-400/20 text-left relative overflow-hidden mb-12">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 bg-indigo-500/10 border border-indigo-500/25 rounded-2xl text-indigo-400">
+                            <i data-lucide="user-check" class="w-6 h-6"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-md font-bold text-indigo-300">Lock Your Non-Negotiables Assistant</h3>
+                            <p class="text-xs opacity-75 mt-1 leading-relaxed">Select travel criteria that are completely necessary for your dignity. We will automatically flag carriers/hotels that charge extra for them!</p>
+                            
+                            <div class="flex flex-wrap gap-2.5 mt-4">
+                                <button id="nn-carer" onclick="toggleNonNegotiable('carer')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-semibold hover:border-indigo-400/50 transition flex items-center gap-2 text-slate-200">
+                                    <i data-lucide="circle" class="w-3.5 h-3.5 text-slate-400"></i> Companion Seating Next to Me
+                                </button>
+                                <button id="nn-wheelchair" onclick="toggleNonNegotiable('wheelchair')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-semibold hover:border-indigo-400/50 transition flex items-center gap-2 text-slate-200">
+                                    <i data-lucide="circle" class="w-3.5 h-3.5 text-slate-400"></i> Ramp/Step-Free Transitions
+                                </button>
+                                <button id="nn-fridge" onclick="toggleNonNegotiable('fridge')" class="px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-semibold hover:border-indigo-400/50 transition flex items-center gap-2 text-slate-200">
+                                    <i data-lucide="circle" class="w-3.5 h-3.5 text-slate-400"></i> Medical Cooler/Fridge Access
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Live Stat Highlights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-5xl mx-auto">
+                <div class="glass-card p-6 flex items-center gap-5">
+                    <div class="p-3.5 bg-red-500/10 border border-red-500/25 rounded-2xl text-red-400">
+                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-extrabold tracking-tight">84%</h4>
+                        <p class="text-[10px] opacity-70 uppercase tracking-widest font-bold">Accessible Bookings Hide Fees</p>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex items-center gap-5">
+                    <div class="p-3.5 bg-indigo-500/10 border border-indigo-500/25 rounded-2xl text-indigo-400">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-extrabold tracking-tight">3.2x</h4>
+                        <p class="text-[10px] opacity-70 uppercase tracking-widest font-bold">Carer Seat Selection Markup</p>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex items-center gap-5">
+                    <div class="p-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-emerald-400">
+                        <i data-lucide="coins" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-extrabold tracking-tight">£142</h4>
+                        <p class="text-[10px] opacity-70 uppercase tracking-widest font-bold">Average Hidden Surcharge</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VS Legacy Matrix Section (HOVER EFFECT & HOOK) -->
+            <div class="max-w-5xl mx-auto mb-16">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold tracking-tight">TrueTravel vs. Legacy Apps</h3>
+                    <p class="text-xs opacity-65">How we put dignity and transparent travel back in your control.</p>
+                </div>
+                <div class="glass-card overflow-hidden border border-white/5">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950/40 text-[10px] uppercase tracking-wider font-extrabold text-slate-400 border-b border-white/5">
+                                <th class="p-5">Feature Shield</th>
+                                <th class="p-5 text-cyan-400">TrueTravel Shield</th>
+                                <th class="p-5 opacity-60">Legacy Booking Sites</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs divide-y divide-white/5">
+                            <tr>
+                                <td class="p-5 font-bold">Seat Assignment beside Companions/Carers</td>
+                                <td class="p-5 text-cyan-400 font-bold flex items-center gap-1.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Free &amp; Automatic (Audit Alerts)
+                                </td>
+                                <td class="p-5 opacity-60">Upsold heavily behind premium menus (£15-£45 extra)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-5 font-bold">Verified Room Equipment Checks (Wetroom/Insulin Fridge)</td>
+                                <td class="p-5 text-cyan-400 font-bold flex items-center gap-1.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Community-Checked Factual Audits
+                                </td>
+                                <td class="p-5 opacity-60">Vague tags or hidden late surcharge parameters</td>
+                            </tr>
+                            <tr>
+                                <td class="p-5 font-bold">Early Check-in &amp; Off-Hours Access Support</td>
+                                <td class="p-5 text-cyan-400 font-bold flex items-center gap-1.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Calculated base price transparency
+                                </td>
+                                <td class="p-5 opacity-60">Surprise penalty charges at front desk check-in</td>
+                            </tr>
+                            <tr>
+                                <td class="p-5 font-bold">Loyalty &amp; XP Rewards</td>
+                                <td class="p-5 text-cyan-400 font-bold flex items-center gap-1.5">
+                                    <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Gamified Points for Accessible Breaks
+                                </td>
+                                <td class="p-5 opacity-60">None / Complex airline alignments only</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Two Active Channels -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                
+                <!-- Airline Gateway -->
+                <div class="glass-card airline-hover p-8 cursor-pointer flex flex-col justify-between h-[340px] relative overflow-hidden group" onclick="showPage('airlines')">
+                    <div class="flex justify-between items-start">
+                        <div class="p-4 bg-cyan-400/10 border border-cyan-400/20 rounded-2xl text-cyan-400 group-hover:scale-110 transition duration-300">
+                            <i data-lucide="plane-takeoff" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-widest bg-cyan-400/10 border border-cyan-400/25 text-cyan-400 px-3 py-1 rounded-full uppercase">
+                            Active Shield
+                        </span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-bold tracking-tight mb-3">Airline Fee Shield</h3>
+                        <p class="text-sm opacity-75 font-light leading-relaxed">
+                            Audit adjacent companion seating policies, mobility handling fees, and oxygen clearances for top low-cost carriers.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 text-cyan-400 text-sm font-semibold mt-auto pt-6 group-hover:translate-x-2 transition duration-300">
+                        Expose Airline Markup <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Hotel Gateway -->
+                <div class="glass-card hotel-hover p-8 cursor-pointer flex flex-col justify-between h-[340px] relative overflow-hidden group" onclick="showPage('hotels')">
+                    <div class="flex justify-between items-start">
+                        <div class="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl text-indigo-400 group-hover:scale-110 transition duration-300">
+                            <i data-lucide="hotel" class="w-8 h-8"></i>
+                        </div>
+                        <span class="text-[10px] font-bold tracking-widest bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 px-3 py-1 rounded-full uppercase">
+                            Active Shield
+                        </span>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-bold tracking-tight mb-3">Hotel Transparency Hub</h3>
+                        <p class="text-sm opacity-75 font-light leading-relaxed">
+                            Compare room configurations, wetroom safety specifications, and hidden resort late-arrival service charges.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 text-indigo-400 text-sm font-semibold mt-auto pt-6 group-hover:translate-x-2 transition duration-300">
+                        Expose Hotel Surcharges <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==================== PAGE: AIRLINE TRANSPARENCY SHIELD ==================== -->
+        <div id="page-airlines" class="page hidden transition duration-500">
+            
+            <button class="flex items-center gap-2 text-sm font-bold opacity-75 hover:opacity-100 mb-8 transition" onclick="showPage('home')">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home Hub
+            </button>
+
+            <!-- DIGNITY ASSISTANT WARNING ALERTS DYNAMIC FLAG -->
+            <div id="air-assistant-alert" class="glass-card border border-red-500/30 p-4 mb-8 hidden items-center gap-3.5 bg-red-950/15">
+                <div class="p-2 bg-red-500/20 text-red-400 rounded-lg">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs">
+                    <span class="font-extrabold text-red-400 uppercase tracking-wide">Dignity Guardian Assistant Trigger:</span>
+                    <p class="opacity-80 text-slate-300">One or more of your locked <strong class="text-white">Non-Negotiable travel standards</strong> is being charged extra by these operators. See the red alerts below.</p>
+                </div>
+            </div>
+
+            <!-- GLOWING GOLDEN TREASURE CHEST FEATURE (FOR AIRLINES) -->
+            <div id="air-gems-container" class="hidden mb-8 transition-all duration-500 transform scale-95 opacity-0">
+                <div class="glass-card border-2 border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent p-6 text-center relative overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.15)]">
+                    <!-- Sparkle background -->
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)] pointer-events-none animate-pulse"></div>
+                    
+                    <div id="air-chest-closed" class="block">
+                        <h4 class="text-amber-400 font-extrabold text-[10px] uppercase tracking-widest mb-3">🚨 Surcharges are high! BUT LOOK WHAT JUST APPEARED...</h4>
+                        <div class="cursor-pointer group inline-block" onclick="openAirTreasureChest()">
+                            <!-- Custom Animated closed chest SVG -->
+                            <svg viewBox="0 0 100 100" class="w-28 h-28 mx-auto transition-transform duration-300 group-hover:scale-110 filter drop-shadow-[0_0_20px_rgba(251,191,36,0.7)] animate-bounce">
+                                <path d="M20,50 L80,50 L75,85 L25,85 Z" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+                                <rect x="44" y="48" width="12" height="14" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+                                <circle cx="50" cy="55" r="2.5" fill="#000"/>
+                                <path d="M30,50 L27,85" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
+                                <path d="M70,50 L73,85" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
+                                <path d="M20,50 C15,25 85,25 80,50 Z" fill="#d97706" stroke="#78350f" stroke-width="2"/>
+                            </svg>
+                            <p class="text-xs text-amber-300 font-black mt-2 tracking-wide">🎁 Click to Open the Hidden Gems Chest!</p>
+                        </div>
+                    </div>
+
+                    <div id="air-chest-open" class="hidden">
+                        <!-- Custom Animated open chest SVG -->
+                        <div class="mb-4">
+                            <svg viewBox="0 0 100 100" class="w-24 h-24 mx-auto filter drop-shadow-[0_0_25px_rgba(251,191,36,0.85)]">
+                                <ellipse cx="50" cy="40" rx="30" ry="12" fill="rgba(251,191,36,0.45)" filter="blur(5px)"/>
+                                <path d="M20,50 L80,50 L75,85 L25,85 Z" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+                                <circle cx="40" cy="48" r="6" fill="#3b82f6"/>
+                                <circle cx="50" cy="46" r="8" fill="#f43f5e"/>
+                                <circle cx="60" cy="48" r="6" fill="#10b981"/>
+                                <polygon points="50,30 55,42 67,42 57,50 61,62 50,54 39,62 43,50 33,42 45,42" fill="#fbbf24" class="animate-pulse"/>
+                                <path d="M20,50 C20,35 80,35 80,50 Z" fill="#d97706" stroke="#78350f" stroke-width="2" transform="scale(1, -0.6) translate(0, -115)"/>
+                                <path d="M30,50 L27,85" stroke="#fbbf24" stroke-width="3.5"/>
+                                <path d="M70,50 L73,85" stroke="#fbbf24" stroke-width="3.5"/>
+                            </svg>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-[10px] font-extrabold uppercase tracking-widest text-emerald-400 inline-block mb-3">
+                            ✨ +20 XP Gained! Treasure Unlocked
+                        </span>
+                        <h4 class="text-xl font-black text-amber-400 mb-2">🎁 TrueTravel Hidden Gems Uncovered! 🎁</h4>
+                        <p class="text-xs opacity-85 max-w-xl mx-auto mb-5 font-light text-slate-200">We unmask the bad fees, but we also uncover amazing pre-vetted accessible travel initiatives for your trip from <strong class="text-white" id="gem-air-from">London</strong> to <strong class="text-white" id="gem-air-to">Rome</strong>:</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
+                            <div class="bg-slate-950/40 p-4 rounded-xl border border-amber-500/20 hover:border-amber-400/50 transition">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+                                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs text-white block">Companion Flying Scheme</span>
+                                        <span class="text-[11px] opacity-70 block mt-1 text-slate-300">Get subsidized companion adjacent seating with our community-backed companion card!</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950/40 p-4 rounded-xl border border-amber-500/20 hover:border-amber-400/50 transition">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+                                        <i data-lucide="navigation" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs text-white block">Free Airside Escort Access</span>
+                                        <span class="text-[11px] opacity-70 block mt-1 text-slate-300">Bypass secondary shuttle markups using the airport's fully-subsidized terminal ramp assist.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Control Form Panel -->
+                <div class="glass-card p-8 lg:col-span-5">
+                    <h3 class="text-2xl font-bold tracking-tight mb-2">The Flight Dignity Matrix</h3>
+                    <p class="text-sm opacity-70 mb-8 font-light">Select criteria to expose hidden checkout markups for disabled/elderly fliers.</p>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] uppercase font-extrabold tracking-wider opacity-60">Origin</label>
+                            <input type="text" id="air-origin" value="London (LHR)" oninput="runTrueCalculator()" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-cyan-400 transition text-white">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] uppercase font-extrabold tracking-wider opacity-60">Destination</label>
+                            <input type="text" id="air-dest" value="Rome (FCO)" oninput="runTrueCalculator()" class="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-cyan-400 transition text-white">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2 mb-8">
+                        <label class="text-[10px] uppercase font-extrabold tracking-wider opacity-60">Luggage Configuration</label>
+                        <select id="air-luggage" onchange="runTrueCalculator()" class="bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-cyan-400 transition cursor-pointer font-medium text-slate-200">
+                            <option value="none">Small Underseat Bag (Free)</option>
+                            <option value="cabin">10kg Overhead Cabin Bag (+ Premium Fee)</option>
+                            <option value="checkin">20kg Hold Checked Bag (+ Extended Surcharge)</option>
+                        </select>
+                    </div>
+
+                    <hr class="border-white/5 my-8">
+
+                    <!-- CLICKABLE SECTION FOR ACCESSIBILITY REQUIREMENTS -->
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-400 block mb-5 cursor-pointer hover:text-cyan-300" onclick="toggleAllAccessibilityCheckboxes()">
+                        Accessibility Requirements <span class="text-[10px] text-slate-500 font-normal lowercase ml-1">(click to toggle all)</span>
+                    </span>
+
+                    <!-- Custom Checkboxes -->
+                    <div class="flex flex-col gap-4">
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-air-carer" onclick="toggleTile('chk-air-carer', 'checked-airline')">
+                            <input type="checkbox" id="chk-air-carer">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-air-carer">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug flex items-center gap-2">
+                                    Companion Adjacent Seating
+                                    <span class="hidden border border-red-500/40 text-red-400 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide tracking-wider" id="alert-badge-carer">Violates Non-Negotiable</span>
+                                </span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Guarantees seat assignment next to your carer without paying seat premium fees.</span>
+                            </div>
+                        </div>
+
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-air-wheelchair" onclick="toggleTile('chk-air-wheelchair', 'checked-airline')">
+                            <input type="checkbox" id="chk-air-wheelchair">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-air-wheelchair">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug flex items-center gap-2">
+                                    Wheelchair Ramp Transit
+                                    <span class="hidden border border-red-500/40 text-red-400 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wide tracking-wider" id="alert-badge-wheelchair">Violates Non-Negotiable</span>
+                                </span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Bypasses secondary ramp processing machinery and tarmac shuttle boarding fees.</span>
+                            </div>
+                        </div>
+
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-air-medical" onclick="toggleTile('chk-air-medical', 'checked-airline')">
+                            <input type="checkbox" id="chk-air-medical">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-air-medical">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-cyan-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug">Essential Medical Apparatus</span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Includes verification processing for dialyzers, oxygen pumps, and feeding lines.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Comparison Results Deck -->
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    
+                    <!-- Ryanair Surcharge Box -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-red-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-blue-950 flex items-center justify-center font-bold text-md text-white border border-blue-700">RA</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Ryanair</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-red-500/10 border border-red-500/25 text-red-400 uppercase font-extrabold" id="rf-grade">Grade F</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Aggressive unbundling algorithms. Compulsory seat allocation markups are heavily applied to support passengers.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Advertised Base:</span>
+                                <span>£29.99</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-red-400 font-bold mb-3.5 hidden" id="rf-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="rf-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-cyan-400" id="rf-total-val">£29.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EasyJet Surcharge Box -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-amber-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-orange-950 flex items-center justify-center font-bold text-md text-white border border-orange-500">EJ</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">EasyJet</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 uppercase font-extrabold" id="ej-grade">Grade C</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Fair basic boarding, but seat upgrades and cabin luggage rates fluctuate highly during busy hours.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Advertised Base:</span>
+                                <span>£39.99</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-amber-400 font-bold mb-3.5 hidden" id="ej-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="ej-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-cyan-400" id="ej-total-val">£39.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wizz Air Surcharge Box -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-red-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-pink-950 flex items-center justify-center font-bold text-md text-white border border-pink-500">WA</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Wizz Air</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-red-500/10 border border-red-500/25 text-red-400 uppercase font-extrabold" id="wa-grade">Grade F</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Highly fragmented booking interfaces frequently hide ancillary pricing until confirmation stages.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Advertised Base:</span>
+                                <span>£24.99</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-red-400 font-bold mb-3.5 hidden" id="wa-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="wa-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-cyan-400" id="wa-total-val">£24.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Spirit Airlines Surcharge Box -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-amber-600 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-yellow-950 flex items-center justify-center font-bold text-md text-yellow-400 border border-yellow-500">SA</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Spirit Airlines</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-red-500/10 border border-red-500/25 text-red-400 uppercase font-extrabold" id="sa-grade">Grade F</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Famous for low headlines but heavy check-out multipliers. Seating companions often incurs high costs.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Advertised Base:</span>
+                                <span>£19.99</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-red-400 font-bold mb-3.5 hidden" id="sa-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="sa-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-cyan-400" id="sa-total-val">£19.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Frontier Airlines Surcharge Box -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-amber-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-emerald-950 flex items-center justify-center font-bold text-md text-emerald-400 border border-emerald-500">FA</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Frontier Airlines</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 uppercase font-extrabold" id="fa-grade">Grade D</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Uses algorithmic upsells. Luggage specifications are highly constrained and gate fees run extremely high.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Advertised Base:</span>
+                                <span>£21.99</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-amber-400 font-bold mb-3.5 hidden" id="fa-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="fa-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-cyan-400" id="fa-total-val">£21.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==================== PAGE: HOTEL TRANSPARENCY HUB ==================== -->
+        <div id="page-hotels" class="page hidden transition duration-500">
+            
+            <button class="flex items-center gap-2 text-sm font-bold opacity-75 hover:opacity-100 mb-8 transition" onclick="showPage('home')">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home Hub
+            </button>
+
+            <!-- DIGNITY ASSISTANT WARNING ALERTS DYNAMIC FLAG -->
+            <div id="hotel-assistant-alert" class="glass-card border border-red-500/30 p-4 mb-8 hidden items-center gap-3.5 bg-red-950/15">
+                <div class="p-2 bg-red-500/20 text-red-400 rounded-lg">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+                <div class="text-xs">
+                    <span class="font-extrabold text-red-400 uppercase tracking-wide">Dignity Guardian Assistant Trigger:</span>
+                    <p class="opacity-80 text-slate-300">One or more of your locked <strong class="text-white">Non-Negotiable travel standards</strong> is being charged extra by these hotels. See the red alerts below.</p>
+                </div>
+            </div>
+
+            <!-- GLOWING GOLDEN TREASURE CHEST FEATURE (FOR HOTELS) -->
+            <div id="hotel-gems-container" class="hidden mb-8 transition-all duration-500 transform scale-95 opacity-0">
+                <div class="glass-card border-2 border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent p-6 text-center relative overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.15)]">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.08)_0%,transparent_70%)] pointer-events-none animate-pulse"></div>
+                    
+                    <div id="hotel-chest-closed" class="block">
+                        <h4 class="text-amber-400 font-extrabold text-[10px] uppercase tracking-widest mb-3">🚨 Accommodation fees are high! BUT LOOK WHAT JUST APPEARED...</h4>
+                        <div class="cursor-pointer group inline-block" onclick="openHotelTreasureChest()">
+                            <!-- Golden closed chest SVG -->
+                            <svg viewBox="0 0 100 100" class="w-28 h-28 mx-auto transition-transform duration-300 group-hover:scale-110 filter drop-shadow-[0_0_20px_rgba(251,191,36,0.7)] animate-bounce">
+                                <path d="M20,50 L80,50 L75,85 L25,85 Z" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+                                <rect x="44" y="48" width="12" height="14" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+                                <circle cx="50" cy="55" r="2.5" fill="#000"/>
+                                <path d="M30,50 L27,85" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
+                                <path d="M70,50 L73,85" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round"/>
+                                <path d="M20,50 C15,25 85,25 80,50 Z" fill="#d97706" stroke="#78350f" stroke-width="2"/>
+                            </svg>
+                            <p class="text-xs text-amber-300 font-black mt-2 tracking-wide">🎁 Click to Open the Hidden Gems Chest!</p>
+                        </div>
+                    </div>
+
+                    <div id="hotel-chest-open" class="hidden">
+                        <!-- Golden open chest SVG -->
+                        <div class="mb-4">
+                            <svg viewBox="0 0 100 100" class="w-24 h-24 mx-auto filter drop-shadow-[0_0_25px_rgba(251,191,36,0.85)]">
+                                <ellipse cx="50" cy="40" rx="30" ry="12" fill="rgba(251,191,36,0.45)" filter="blur(5px)"/>
+                                <path d="M20,50 L80,50 L75,85 L25,85 Z" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+                                <circle cx="40" cy="48" r="6" fill="#3b82f6"/>
+                                <circle cx="50" cy="46" r="8" fill="#f43f5e"/>
+                                <circle cx="60" cy="48" r="6" fill="#10b981"/>
+                                <polygon points="50,30 55,42 67,42 57,50 61,62 50,54 39,62 43,50 33,42 45,42" fill="#fbbf24" class="animate-pulse"/>
+                                <path d="M20,50 C20,35 80,35 80,50 Z" fill="#d97706" stroke="#78350f" stroke-width="2" transform="scale(1, -0.6) translate(0, -115)"/>
+                                <path d="M30,50 L27,85" stroke="#fbbf24" stroke-width="3.5"/>
+                                <path d="M70,50 L73,85" stroke="#fbbf24" stroke-width="3.5"/>
+                            </svg>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-[10px] font-extrabold uppercase tracking-widest text-emerald-400 inline-block mb-3">
+                            ✨ +20 XP Gained! Treasure Unlocked
+                        </span>
+                        <h4 class="text-xl font-black text-amber-400 mb-2">🎁 TrueTravel Accommodation Treasures! 🎁</h4>
+                        <p class="text-xs opacity-85 max-w-xl mx-auto mb-5 font-light text-slate-200">We audit the bad upcharges, but we also uncover amazing, pre-vetted accessible support programs to keep costs down:</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
+                            <div class="bg-slate-950/40 p-4 rounded-xl border border-amber-500/20 hover:border-amber-400/50 transition">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+                                        <i data-lucide="check" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs text-white block">TrueTravel Ramp Hire Coalition</span>
+                                        <span class="text-[11px] opacity-70 block mt-1 text-slate-300">Bypass expensive hotel installation taxes using our fully verified local free access ramp hire.</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950/40 p-4 rounded-xl border border-amber-500/20 hover:border-amber-400/50 transition">
+                                <div class="flex items-start gap-3">
+                                    <div class="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+                                        <i data-lucide="award" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs text-white block">Dignity Travel Support Grants</span>
+                                        <span class="text-[11px] opacity-70 block mt-1 text-slate-300">Earn direct regional vouchers to offset step-free room setup fees. Sponsored by our partner hotels!</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Configuration Deck -->
+                <div class="glass-card p-8 lg:col-span-5">
+                    <h3 class="text-2xl font-bold tracking-tight mb-2">Hotel Surcharge Matrix</h3>
+                    <p class="text-sm opacity-70 mb-8 font-light">Guarantee physical accommodations and scan room infrastructure before arrival.</p>
+
+                    <!-- PREMIUM ARCHITECTURAL LINE-ART HOTEL BUILDING -->
+                    <div class="w-full h-48 bg-slate-950/40 rounded-2xl border border-white/5 p-4 flex items-end justify-center gap-1 mb-8 relative overflow-hidden shadow-inner">
+                        <div class="absolute top-4 left-5 text-[9px] uppercase font-bold tracking-widest opacity-40">Hotel Windows Matrix</div>
+                        
+                        <!-- HIGH RESOLUTION STRUCTURAL HOTEL VECTOR -->
+                        <svg viewBox="0 0 100 120" class="h-full w-24 text-slate-800 drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]">
+                            <rect x="15" y="10" width="70" height="110" fill="currentColor" rx="8"/>
+                            
+                            <!-- Rows of Premium Windows -->
+                            <rect id="win-1" class="window-glass" x="25" y="22" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-2" class="window-glass" x="45" y="22" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-3" class="window-glass" x="65" y="22" width="10" height="12" fill="#1e293b" rx="2"/>
+                            
+                            <rect id="win-4" class="window-glass" x="25" y="47" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-5" class="window-glass" x="45" y="47" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-6" class="window-glass" x="65" y="47" width="10" height="12" fill="#1e293b" rx="2"/>
+                            
+                            <rect id="win-7" class="window-glass" x="25" y="72" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-8" class="window-glass" x="45" y="72" width="10" height="12" fill="#1e293b" rx="2"/>
+                            <rect id="win-9" class="window-glass" x="65" y="72" width="10" height="12" fill="#1e293b" rx="2"/>
+
+                            <!-- Hotel Entryway -->
+                            <rect x="38" y="98" width="24" height="22" fill="#020617" rx="3"/>
+                        </svg>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] uppercase font-extrabold tracking-wider opacity-60">Nights</label>
+                            <input type="number" id="hotel-nights" value="3" min="1" onchange="runTrueCalculator()" class="bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-indigo-500 text-slate-200">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] uppercase font-extrabold tracking-wider opacity-60">Room Tier Setup</label>
+                            <select id="hotel-tier" onchange="runTrueCalculator()" class="bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-indigo-500 cursor-pointer text-slate-200">
+                                <option value="standard">Standard Room</option>
+                                <option value="premium">Premium Assisted Suite</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/5 my-8">
+
+                    <!-- CLICKABLE REQUIRED HOTEL FEATURES HEADER -->
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-400 block mb-5 cursor-pointer hover:text-indigo-300" onclick="toggleAllHotelCheckboxes()">
+                        Required Hotel Features <span class="text-[10px] text-slate-500 font-normal lowercase ml-1">(click to toggle all)</span>
+                    </span>
+
+                    <div class="flex flex-col gap-4">
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-hotel-wetroom" onclick="toggleTile('chk-hotel-wetroom', 'checked-hotel')">
+                            <input type="checkbox" id="chk-hotel-wetroom">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-hotel-wetroom">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug">Wetroom Shower Guarantees</span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Locks physically verified, flat bathroom boundaries, avoiding drop-in tubs.</span>
+                            </div>
+                        </div>
+
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-hotel-hours" onclick="toggleTile('chk-hotel-hours', 'checked-hotel')">
+                            <input type="checkbox" id="chk-hotel-hours">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-hotel-hours">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug">Round-the-clock Door Entry</span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Guarantees localized late-night medical entrance staff without service lock penalties.</span>
+                            </div>
+                        </div>
+
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-hotel-fridge" onclick="toggleTile('chk-hotel-fridge', 'checked-hotel')">
+                            <input type="checkbox" id="chk-hotel-fridge">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-hotel-fridge">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug flex items-center gap-2">
+                                    In-Room Temperature Cooler
+                                    <span class="hidden border border-red-500/40 text-red-400 text-[8px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider" id="alert-badge-fridge">Violates Non-Negotiable</span>
+                                </span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Locks continuous refrigeration setup for insulin, foods, and fluid medications.</span>
+                            </div>
+                        </div>
+
+                        <!-- NEW ATTRS: EXTRA FEES & PARKING & IN-ROOM ADDONS -->
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-hotel-parking" onclick="toggleTile('chk-hotel-parking', 'checked-hotel')">
+                            <input type="checkbox" id="chk-hotel-parking">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-hotel-parking">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug">Accessible Parking Bay Guarantee</span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Secures dedicated disabled parking adjacent to key foyer doors. (+£12/night fee)</span>
+                            </div>
+                        </div>
+
+                        <div class="interactive-checkbox p-5 flex gap-4 items-start" id="tile-hotel-addons" onclick="toggleTile('chk-hotel-addons', 'checked-hotel')">
+                            <input type="checkbox" id="chk-hotel-addons">
+                            <div class="flex items-center justify-center w-5 h-5 rounded-md border border-white/20 mt-1 flex-shrink-0" id="box-hotel-addons">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-indigo-400 hidden"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold block leading-snug">Early Check-in/Late Check-out Access</span>
+                                <span class="text-xs opacity-60 block mt-1 font-light leading-relaxed">Locks early check-in or late checkout limits to ease transportation coordination. (+£30 fee)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Live Comparison Output Card Stack -->
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    
+                    <!-- Marriott Card -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-indigo-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-red-950 flex items-center justify-center font-bold text-md text-white border border-red-500">MA</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Marriott</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 uppercase font-extrabold" id="ma-grade">Grade B</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Highly accessible configurations overall. Coolers are complementary, but room setup taxes can run high.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Room Rate Base:</span>
+                                <span id="ma-base-val">£450.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-indigo-400 font-bold mb-3.5 hidden" id="ma-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="ma-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-indigo-400" id="ma-total-val">£450.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hilton Card -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-indigo-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-blue-950 flex items-center justify-center font-bold text-md text-white border border-blue-500">HI</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Hilton</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 uppercase font-extrabold" id="hi-grade">Grade B+</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Comprehensive accessible structures. Highly transparent, but minor service charges remain for off-hours support.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Room Rate Base:</span>
+                                <span id="hi-base-val">£390.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-indigo-400 font-bold mb-3.5 hidden" id="hi-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="hi-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-indigo-400" id="hi-total-val">£390.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- InterContinental Card -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-emerald-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center font-bold text-md text-white border border-slate-700">IC</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">InterContinental</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 uppercase font-extrabold" id="ic-grade">Grade A</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Completely unbundled luxury standards. Free wetroom alignments, zero entry/checkin surcharges.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Room Rate Base:</span>
+                                <span id="ic-base-val">£600.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-emerald-400 font-bold mb-3.5 hidden" id="ic-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="ic-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-emerald-400" id="ic-total-val">£600.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Hyatt Card -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-indigo-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-indigo-950 flex items-center justify-center font-bold text-md text-indigo-400 border border-indigo-600">HY</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Hyatt</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 uppercase font-extrabold" id="hy-grade">Grade B+</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Solid accessibility alignment. In-room coolers carry slight setup parameters, but check-out extensions are transparent.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Room Rate Base:</span>
+                                <span id="hy-base-val">£540.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-indigo-400 font-bold mb-3.5 hidden" id="hy-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="hy-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-indigo-400" id="hy-total-val">£540.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Radisson Card -->
+                    <div class="glass-card p-6 md:p-8 border-l-4 border-amber-500 flex flex-col md:flex-row justify-between gap-6">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-12 h-12 rounded-full bg-slate-900 flex items-center justify-center font-bold text-md text-amber-500 border border-amber-600">RD</div>
+                                <div>
+                                    <h4 class="font-bold text-lg tracking-tight">Radisson Hotels</h4>
+                                    <span class="text-[9px] tracking-wider px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 uppercase font-extrabold" id="rd-grade">Grade C</span>
+                                </div>
+                            </div>
+                            <p class="text-xs opacity-70 leading-relaxed max-w-md font-light">Late access fees apply during off-hours checkins. Wetroom shower modifications must be requested early to prevent surprise surcharges.</p>
+                        </div>
+                        <div class="border-t md:border-t-0 md:border-l border-white/5 pt-5 md:pt-0 md:pl-8 flex flex-col justify-center min-w-[200px]">
+                            <div class="flex justify-between text-xs opacity-60 mb-1.5">
+                                <span>Room Rate Base:</span>
+                                <span id="rd-base-val">£420.00</span>
+                            </div>
+                            <div class="flex justify-between text-xs text-amber-400 font-bold mb-3.5 hidden" id="rd-unmask-row">
+                                <span>Unmasked Surcharges:</span>
+                                <span id="rd-unmask-val">+£0.00</span>
+                            </div>
+                            <hr class="border-white/5 my-2.5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="text-xs font-semibold">True Cost:</span>
+                                <span class="text-3xl font-black text-indigo-400" id="rd-total-val">£420.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REVIEWS SYSTEM: COMMUNITY FACTUAL AUDITS -->
+                    <div class="glass-card p-6 mt-6 border border-indigo-400/10">
+                        <h4 class="text-md font-extrabold tracking-tight mb-4 flex items-center gap-2">
+                            <i data-lucide="users" class="w-5 h-5 text-indigo-400"></i> Factual Accessibility Audits by Travelers
+                        </h4>
+                        <div class="space-y-4 max-h-[250px] overflow-y-auto pr-2">
+                            <!-- Review 1 -->
+                            <div class="bg-black/25 p-4 rounded-xl border border-white/5">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-xs font-bold text-white">Lillian T. <span class="text-slate-500 font-light">• Stayed at Marriott</span></span>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/35 text-[9px] font-extrabold uppercase tracking-wide text-emerald-400 flex items-center gap-1">
+                                        <i data-lucide="shield-check" class="w-2.5 h-2.5"></i> verified factual
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">Wetroom shower boundaries were completely flat. It perfectly matched the verified specs TrueTravel audited. No drop-in tubs!</p>
+                            </div>
+                            <!-- Review 2 -->
+                            <div class="bg-black/25 p-4 rounded-xl border border-white/5">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-xs font-bold text-white">Alistair M. <span class="text-slate-500 font-light">• Stayed at Hilton</span></span>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/35 text-[9px] font-extrabold uppercase tracking-wide text-amber-400 flex items-center gap-1">
+                                        <i data-lucide="alert-circle" class="w-2.5 h-2.5"></i> outdated claim
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">The in-room insulin cooler setup required a £15 fee because I checked in late. TrueTravel unmasked this correctly before arrival!</p>
+                            </div>
+                            <!-- Review 3 -->
+                            <div class="bg-black/25 p-4 rounded-xl border border-white/5">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-xs font-bold text-white">Yousuf K. <span class="text-slate-500 font-light">• Stayed at Radisson</span></span>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/35 text-[9px] font-extrabold uppercase tracking-wide text-emerald-400 flex items-center gap-1">
+                                        <i data-lucide="shield-check" class="w-2.5 h-2.5"></i> verified factual
+                                    </span>
+                                </div>
+                                <p class="text-xs text-slate-300 leading-relaxed">Radisson did charge £25 for late-night entrance support staff but the app let me prepay so I had no check-out surprise penalties. Love this transparency.</p>
+                            </div>
+                        </div>
+
+                        <!-- Gamified Verification Action -->
+                        <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs">
+                            <span class="opacity-70">Did you verify hotel accommodations yourself?</span>
+                            <button onclick="simulateAddReview()" class="px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-400/20 rounded-lg transition font-extrabold">
+                                Submit Audit Review (+50 XP)
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ADORABLE FLOATING MASCOT companion "SKY" -->
+    <div class="mascot-container">
+        <!-- Mascot speech bubble -->
+        <div class="mascot-bubble" id="mascot-speech">
+            Hi Lara! I'm Sky, your TrueTravel guide. I make sure no one sneaks extra fees past us!
+        </div>
+        <!-- Mascot body (Animated SVG) -->
+        <div class="mascot-body" id="mascot-avatar" onclick="triggerMascotPhrase()">
+            <svg viewBox="0 0 100 100" class="w-full h-full">
+                <!-- Glowing Aura -->
+                <circle cx="50" cy="55" r="32" fill="rgba(0, 210, 255, 0.2)" filter="blur(6px)" />
+                
+                <!-- Cloud Base Body -->
+                <path d="M 30,65 
+                         C 18,65 15,50 25,45 
+                         C 20,30 40,25 50,35 
+                         C 60,20 80,30 75,45 
+                         C 85,48 82,65 70,65 Z" 
+                      fill="#ffffff" stroke="#e2e8f0" stroke-width="2" />
+                
+                <!-- Goggles (Cute Pilot Gear!) -->
+                <rect x="34" y="38" width="14" height="10" rx="4" fill="#334155" />
+                <rect x="52" y="38" width="14" height="10" rx="4" fill="#334155" />
+                <rect x="37" y="41" width="8" height="4" rx="2" fill="#e2e8f0" />
+                <rect x="55" y="41" width="8" height="4" rx="2" fill="#e2e8f0" />
+                <rect x="48" y="41" width="4" height="2" fill="#1e293b" />
+                
+                <!-- Blushing Cheek Circles (pulsing) -->
+                <circle class="mascot-blush" cx="29" cy="55" r="5" fill="#ff8da1" opacity="0.8" />
+                <circle class="mascot-blush" cx="71" cy="55" r="5" fill="#ff8da1" opacity="0.8" />
+                
+                <!-- Adorable Happy Winking Eyes -->
+                <path d="M 32,50 Q 35,48 38,50" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round" />
+                <path d="M 62,50 Q 65,48 68,50" stroke="#1e293b" stroke-width="2" fill="none" stroke-linecap="round" />
+                
+                <!-- Cute Smiling Curve -->
+                <path d="M 46,55 Q 50,59 54,55" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- CUSTOM REWARDS MODAL (MOCK-UP UI) -->
+    <div id="rewards-modal" class="fixed inset-0 bg-black/75 z-50 backdrop-blur-md hidden justify-center items-center p-6 transition duration-300">
+        <div class="glass-card max-w-md w-full p-8 border border-cyan-400/30 text-center relative">
+            <button onclick="closeRewardsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <i data-lucide="gift" class="w-12 h-12 text-cyan-400 mx-auto mb-4 animate-pulse"></i>
+            <h3 class="text-2xl font-black mb-2">Claim Your Dignity Rewards</h3>
+            <p class="text-xs opacity-70 mb-6 font-light">By unmasking opaque travel fees, you earn reward points funded by our ethical partner airlines and hotels!</p>
+            
+            <div class="space-y-3.5 text-left mb-6">
+                <div class="flex justify-between items-center p-3 bg-black/20 rounded-xl border border-white/5">
+                    <div>
+                        <div class="text-xs font-bold">10% Off Accessible Hotel Stays</div>
+                        <div class="text-[10px] opacity-60">Sponsored by InterContinental</div>
+                    </div>
+                    <span class="text-xs font-extrabold text-cyan-400">1,500 pts</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-black/20 rounded-xl border border-white/5">
+                    <div>
+                        <div class="text-xs font-bold">Free Luggage Check-in Voucher</div>
+                        <div class="text-[10px] opacity-60">Sponsored by TrueTravel Coalition</div>
+                    </div>
+                    <span class="text-xs font-extrabold text-cyan-400">3,000 pts</span>
+                </div>
+            </div>
+
+            <button onclick="closeRewardsModal()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:from-cyan-400 hover:to-indigo-400 text-white font-extrabold rounded-xl transition text-sm">
+                Unlock Selected Perk
+            </button>
+        </div>
+    </div>
+
+    <!-- PROTOTYPE FOOTER -->
+    <footer class="relative z-50 border-t border-white/5 py-8 px-6 text-center text-xs opacity-50">
+        <p>TrueTravel © 2026. Built by Lara & Tahira for the Wise WIT Hackathon. Complete, upfront travel price disclosure.</p>
+    </footer>
+
+    <script>
+        // Initialising Lucide Icon set
+        lucide.createIcons();
+
+        // Dynamic XP Tracking System
+        let userPoints = 2450;
+        let userXP = 140;
+        let userLevel = 2;
+
+        function gainXP(xpAmount, pointsAmount) {
+            userXP += xpAmount;
+            userPoints += pointsAmount;
+            
+            if (userXP >= 300) {
+                userLevel++;
+                userXP = userXP - 300;
+                updateMascotText(`Hooray! Level Up! You are now Level ${userLevel}!`);
+            }
+
+            // Update DOM element values
+            const levelEl = document.getElementById('dashboard-level');
+            const xpTextEl = document.getElementById('dashboard-xp-text');
+            const pointsEl = document.getElementById('dashboard-points');
+            const barEl = document.getElementById('dashboard-xp-bar');
+            const pctEl = document.getElementById('xp-percentage');
+
+            if (levelEl) levelEl.innerText = `Level ${userLevel}: Pro Traveler`;
+            if (xpTextEl) xpTextEl.innerText = `${userXP} / 300 XP`;
+            if (pointsEl) pointsEl.innerText = userPoints.toLocaleString();
+            
+            const percentage = Math.round((userXP / 300) * 100);
+            if (pctEl) pctEl.innerText = `${percentage}%`;
+            if (barEl) barEl.style.width = `${percentage}%`;
+
+            // Trigger floating visual effect
+            createFloatingXPPars();
+        }
+
+        function createFloatingXPPars() {
+            const popup = document.createElement('div');
+            popup.className = 'fixed bottom-12 right-12 z-50 bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-black px-3.5 py-1.5 rounded-full text-xs shadow-lg xp-gain-popup flex items-center gap-1';
+            popup.innerHTML = '<i data-lucide="sparkles" class="w-3.5 h-3.5"></i> +10 XP';
+            document.body.appendChild(popup);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 1000);
+        }
+
+        // Non-Negotiable Assistant Setup
+        const lockedNonNegotiables = {
+            carer: false,
+            wheelchair: false,
+            fridge: false
+        };
+
+        function toggleNonNegotiable(field) {
+            lockedNonNegotiables[field] = !lockedNonNegotiables[field];
+            const btn = document.getElementById(`nn-${field}`);
+            const icon = btn.querySelector('i');
+            
+            if (lockedNonNegotiables[field]) {
+                btn.className = "px-3.5 py-1.5 rounded-full border border-indigo-500 bg-indigo-500/20 text-xs font-semibold hover:border-indigo-400 transition flex items-center gap-2 text-indigo-300";
+                icon.setAttribute('data-lucide', 'check-circle-2');
+                updateMascotText(`Saved to your Dignity Non-Negotiables! We will alert you of any upcharges on this.`);
+            } else {
+                btn.className = "px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-semibold hover:border-indigo-400/50 transition flex items-center gap-2 text-slate-200";
+                icon.setAttribute('data-lucide', 'circle');
+            }
+            lucide.createIcons();
+            runTrueCalculator();
+        }
+
+        // 1. DYNAMIC ENVIRONMENT STAR ENGINE
+        const skyCanvas = document.getElementById('sky-canvas');
+
+        function generateSkyElements() {
+            skyCanvas.innerHTML = ''; 
+
+            // Twinkling Star Elements
+            for (let i = 0; i < 55; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 2 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 80}vh`;
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                skyCanvas.appendChild(star);
+            }
+
+            // Floating Cloud Elements
+            for (let i = 0; i < 4; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = `${Math.random() * 160 + 130}px`;
+                cloud.style.height = `${Math.random() * 80 + 50}px`;
+                cloud.style.top = `${Math.random() * 35 + 5}vh`;
+                cloud.style.animationDelay = `${i * 7}s`;
+                skyCanvas.appendChild(cloud);
+            }
+        }
+
+        // Initialise elements
+        generateSkyElements();
+
+        // Theme toggler
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            
+            const iconElement = document.getElementById('theme-toggle-icon');
+            if (targetTheme === 'light') {
+                iconElement.setAttribute('data-lucide', 'moon');
+                updateMascotText("Ooh, look at the bright blue sky! Perfect day to plan a trip.");
+            } else {
+                iconElement.setAttribute('data-lucide', 'sun');
+                updateMascotText("A beautiful starry night! No hidden fees allowed under my watch.");
+            }
+            lucide.createIcons();
+            gainXP(5, 10);
+        }
+
+        // Custom checkbox toggle helper (No standard checkboxes)
+        function toggleTile(checkboxId, themeClass) {
+            const chk = document.getElementById(checkboxId);
+            if (!chk) return;
+            chk.checked = !chk.checked;
+
+            const tile = document.getElementById('tile-' + checkboxId.substring(4));
+            const icon = document.querySelector('#box-' + checkboxId.substring(4) + ' i');
+
+            if (chk.checked) {
+                if (tile) tile.classList.add(themeClass);
+                if (icon) icon.classList.remove('hidden');
+                updateMascotText("Option selected! Audit metrics updating in real time...");
+            } else {
+                if (tile) tile.classList.remove(themeClass);
+                if (icon) icon.classList.add('hidden');
+                updateMascotText("Deselected that fee. Let's recalculate!");
+            }
+
+            // Award gamification XP for clicking/auditing a fee!
+            gainXP(10, 20);
+
+            runTrueCalculator();
+        }
+
+        // Toggle All Controls (Fixing required checkboxes/requirements block)
+        let toggledAllAirlines = false;
+        function toggleAllAccessibilityCheckboxes() {
+            toggledAllAirlines = !toggledAllAirlines;
+            ['chk-air-carer', 'chk-air-wheelchair', 'chk-air-medical'].forEach(id => {
+                const chk = document.getElementById(id);
+                if (chk) {
+                    chk.checked = !toggledAllAirlines; // Setup toggle sequence
+                    toggleTile(id, 'checked-airline');
+                }
+            });
+        }
+
+        let toggledAllHotels = false;
+        function toggleAllHotelCheckboxes() {
+            toggledAllHotels = !toggledAllHotels;
+            ['chk-hotel-wetroom', 'chk-hotel-hours', 'chk-hotel-fridge', 'chk-hotel-parking', 'chk-hotel-addons'].forEach(id => {
+                const chk = document.getElementById(id);
+                if (chk) {
+                    chk.checked = !toggledAllHotels;
+                    toggleTile(id, 'checked-hotel');
+                }
+            });
+        }
+
+        // SPA Route Toggler
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+                page.style.opacity = '0';
+            });
+
+            const activePage = document.getElementById('page-' + pageId);
+            if (activePage) {
+                activePage.classList.remove('hidden');
+                setTimeout(() => {
+                    activePage.style.opacity = '1';
+                }, 50);
+            }
+
+            // Let Sky Mascot react to navigation pages!
+            if (pageId === 'airlines') {
+                updateMascotText("Airline checkouts are notorious for hiding seat and boarding fees. Let's audit them!");
+            } else if (pageId === 'hotels') {
+                updateMascotText("A lot of hotels sneakily add charges for wetrooms, coolers, and late arrivals. Not today!");
+            } else {
+                updateMascotText("Hi Lara! Click on a portal below to check out the real holiday fares!");
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Treasure Chest Interaction Logics
+        function openAirTreasureChest() {
+            document.getElementById('air-chest-closed').classList.add('hidden');
+            document.getElementById('air-chest-open').classList.remove('hidden');
+            
+            // Sync values to chest dynamically
+            document.getElementById('gem-air-from').innerText = document.getElementById('air-origin').value;
+            document.getElementById('gem-air-to').innerText = document.getElementById('air-dest').value;
+
+            updateMascotText("Wow! You opened the Hidden Gems Chest! Look at these awesome accessible support grants!");
+            gainXP(20, 50);
+        }
+
+        function openHotelTreasureChest() {
+            document.getElementById('hotel-chest-closed').classList.add('hidden');
+            document.getElementById('hotel-chest-open').classList.remove('hidden');
+
+            updateMascotText("Fantastic! TrueTravel partner hotels unlocked direct support options for you!");
+            gainXP(20, 50);
+        }
+
+        // Reset Treasure Chests when calculations restart to make them replayable
+        function resetChests() {
+            document.getElementById('air-chest-closed').classList.remove('hidden');
+            document.getElementById('air-chest-open').classList.add('hidden');
+            document.getElementById('hotel-chest-closed').classList.remove('hidden');
+            document.getElementById('hotel-chest-open').classList.add('hidden');
+        }
+
+        // 2. MATHEMATICAL CALCULATION MODULE
+        function runTrueCalculator() {
+            // Reset chest status so it can be re-discovered on criteria change
+            resetChests();
+
+            // Flight requirements status
+            const airCarer = document.getElementById('chk-air-carer').checked;
+            const airWheelchair = document.getElementById('chk-air-wheelchair').checked;
+            const airMedical = document.getElementById('chk-air-medical').checked;
+            const airLuggage = document.getElementById('air-luggage').value;
+
+            // Non-Negotiable checks for airlines
+            let triggerAirAssistant = false;
+            
+            if (lockedNonNegotiables.carer && airCarer) {
+                document.getElementById('alert-badge-carer').classList.remove('hidden');
+                triggerAirAssistant = true;
+            } else {
+                document.getElementById('alert-badge-carer').classList.add('hidden');
+            }
+
+            if (lockedNonNegotiables.wheelchair && airWheelchair) {
+                document.getElementById('alert-badge-wheelchair').classList.remove('hidden');
+                triggerAirAssistant = true;
+            } else {
+                document.getElementById('alert-badge-wheelchair').classList.add('hidden');
+            }
+
+            if (triggerAirAssistant) {
+                const airAlert = document.getElementById('air-assistant-alert');
+                airAlert.classList.remove('hidden');
+                airAlert.classList.add('flex');
+            } else {
+                const airAlert = document.getElementById('air-assistant-alert');
+                airAlert.classList.add('hidden');
+                airAlert.classList.remove('flex');
+            }
+
+            const ryanBase = 29.99;
+            const easyBase = 39.99;
+            const wizzBase = 24.99;
+            const spiritBase = 19.99;
+            const frontierBase = 21.99;
+
+            let ryanExtra = 0;
+            if (airCarer) ryanExtra += 28.00;
+            if (airWheelchair) ryanExtra += 18.00;
+            if (airMedical) ryanExtra += 22.00;
+            if (airLuggage === 'cabin') ryanExtra += 24.00;
+            if (airLuggage === 'checkin') ryanExtra += 42.00;
+
+            let easyExtra = 0;
+            if (airCarer) easyExtra += 14.00;
+            if (airWheelchair) easyExtra += 0.00; 
+            if (airMedical) easyExtra += 8.00;
+            if (airLuggage === 'cabin') easyExtra += 18.00;
+            if (airLuggage === 'checkin') easyExtra += 32.00;
+
+            let wizzExtra = 0;
+            if (airCarer) wizzExtra += 26.00;
+            if (airWheelchair) wizzExtra += 15.00;
+            if (airMedical) wizzExtra += 18.00;
+            if (airLuggage === 'cabin') wizzExtra += 26.00;
+            if (airLuggage === 'checkin') wizzExtra += 45.00;
+
+            let spiritExtra = 0;
+            if (airCarer) spiritExtra += 35.00;
+            if (airWheelchair) spiritExtra += 22.00;
+            if (airMedical) spiritExtra += 25.00;
+            if (airLuggage === 'cabin') spiritExtra += 28.00;
+            if (airLuggage === 'checkin') spiritExtra += 49.00;
+
+            let frontierExtra = 0;
+            if (airCarer) frontierExtra += 33.00;
+            if (airWheelchair) frontierExtra += 20.00;
+            if (airMedical) frontierExtra += 24.00;
+            if (airLuggage === 'cabin') frontierExtra += 27.00;
+            if (airLuggage === 'checkin') frontierExtra += 48.00;
+
+            // Update Airline pricing values
+            updateCarrierCard('rf', ryanBase, ryanExtra);
+            updateCarrierCard('ej', easyBase, easyExtra);
+            updateCarrierCard('wa', wizzBase, wizzExtra);
+            updateCarrierCard('sa', spiritBase, spiritExtra);
+            updateCarrierCard('fa', frontierBase, frontierExtra);
+            updateAirlineGrades(ryanExtra, easyExtra, wizzExtra, spiritExtra, frontierExtra);
+
+            // Trigger Hidden Gems golden chest if any extra accessibility fees are unmasked!
+            const highestFlightSurcharge = Math.max(ryanExtra, easyExtra, wizzExtra, spiritExtra, frontierExtra);
+            const airGemsBox = document.getElementById('air-gems-container');
+            if (highestFlightSurcharge >= 10) {
+                airGemsBox.classList.remove('hidden');
+                setTimeout(() => {
+                    airGemsBox.classList.add('opacity-100', 'scale-100');
+                    airGemsBox.classList.remove('opacity-0', 'scale-95');
+                }, 50);
+            } else {
+                airGemsBox.classList.add('hidden');
+                airGemsBox.classList.remove('opacity-100', 'scale-100');
+                airGemsBox.classList.add('opacity-0', 'scale-95');
+            }
+
+            // Hotel requirements status
+            const hotelNights = parseInt(document.getElementById('hotel-nights').value) || 1;
+            const roomType = document.getElementById('hotel-tier').value;
+            const wetroom = document.getElementById('chk-hotel-wetroom').checked;
+            const lateHours = document.getElementById('chk-hotel-hours').checked;
+            const fridge = document.getElementById('chk-hotel-fridge').checked;
+            const parking = document.getElementById('chk-hotel-parking').checked;
+            const addons = document.getElementById('chk-hotel-addons').checked;
+
+            // Non-Negotiable checks for Hotels
+            let triggerHotelAssistant = false;
+            if (lockedNonNegotiables.fridge && fridge) {
+                document.getElementById('alert-badge-fridge').classList.remove('hidden');
+                triggerHotelAssistant = true;
+            } else {
+                document.getElementById('alert-badge-fridge').classList.add('hidden');
+            }
+
+            if (triggerHotelAssistant) {
+                const hotelAlert = document.getElementById('hotel-assistant-alert');
+                hotelAlert.classList.remove('hidden');
+                hotelAlert.classList.add('flex');
+            } else {
+                const hotelAlert = document.getElementById('hotel-assistant-alert');
+                hotelAlert.classList.add('hidden');
+                hotelAlert.classList.remove('flex');
+            }
+
+            const marriottNightRate = roomType === 'premium' ? 240 : 150;
+            const hiltonNightRate = roomType === 'premium' ? 200 : 130;
+            const icNightRate = roomType === 'premium' ? 320 : 200;
+            const hyattNightRate = roomType === 'premium' ? 280 : 180;
+            const radissonNightRate = roomType === 'premium' ? 220 : 140;
+
+            const marriottBase = marriottNightRate * hotelNights;
+            const hiltonBase = hiltonNightRate * hotelNights;
+            const icBase = icNightRate * hotelNights;
+            const hyattBase = hyattNightRate * hotelNights;
+            const radissonBase = radissonNightRate * hotelNights;
+
+            let marriottExtra = 0;
+            if (wetroom) marriottExtra += 40.00 * hotelNights;
+            if (lateHours) marriottExtra += 35.00;
+            if (fridge) marriottExtra += 15.00;
+            if (parking) marriottExtra += 12.00 * hotelNights;
+            if (addons) marriottExtra += 30.00;
+
+            let hiltonExtra = 0;
+            if (wetroom) hiltonExtra += 20.00 * hotelNights;
+            if (lateHours) hiltonExtra += 25.00;
+            if (fridge) hiltonExtra += 0.00; 
+            if (parking) hiltonExtra += 10.00 * hotelNights;
+            if (addons) hiltonExtra += 25.00;
+
+            let icExtra = 0; 
+
+            let hyattExtra = 0;
+            if (wetroom) hyattExtra += 15.00 * hotelNights;
+            if (lateHours) hyattExtra += 20.00;
+            if (fridge) hyattExtra += 10.00;
+            if (parking) hyattExtra += 15.00 * hotelNights;
+            if (addons) hyattExtra += 20.00;
+
+            let radissonExtra = 0;
+            if (wetroom) radissonExtra += 30.00 * hotelNights;
+            if (lateHours) radissonExtra += 30.00;
+            if (fridge) radissonExtra += 12.00;
+            if (parking) radissonExtra += 12.00 * hotelNights;
+            if (addons) radissonExtra += 28.00;
+
+            // Update Hotel pricing values
+            updateHotelCard('ma', marriottBase, marriottExtra);
+            updateHotelCard('hi', hiltonBase, hiltonExtra);
+            updateHotelCard('ic', icBase, icExtra);
+            updateHotelCard('hy', hyattBase, hyattExtra);
+            updateHotelCard('rd', radissonBase, radissonExtra);
+            updateHotelGrades(marriottExtra, hiltonExtra, icExtra, hyattExtra, radissonExtra);
+
+            // Trigger Hotel Gems alert chest if hotel upcharges accumulate
+            const highestHotelSurcharge = Math.max(marriottExtra, hiltonExtra, icExtra, hyattExtra, radissonExtra);
+            const hotelGemsBox = document.getElementById('hotel-gems-container');
+            if (highestHotelSurcharge >= 20) {
+                hotelGemsBox.classList.remove('hidden');
+                setTimeout(() => {
+                    hotelGemsBox.classList.add('opacity-100', 'scale-100');
+                    hotelGemsBox.classList.remove('opacity-0', 'scale-95');
+                }, 50);
+            } else {
+                hotelGemsBox.classList.add('hidden');
+                hotelGemsBox.classList.remove('opacity-100', 'scale-100');
+                hotelGemsBox.classList.add('opacity-0', 'scale-95');
+            }
+
+            // Shimmer / light hotel windows
+            updateHotelWindows(roomType, wetroom, lateHours, fridge);
+        }
+
+        // Architectural window controller (Glimmer pulse effect!)
+        function updateHotelWindows(roomType, wetroom, lateHours, fridge) {
+            for (let i = 1; i <= 9; i++) {
+                const el = document.getElementById(`win-${i}`);
+                if (el) {
+                    el.setAttribute('fill', '#1e293b');
+                    el.style.filter = 'none';
+                    el.classList.remove('animate-pulse');
+                }
+            }
+
+            if (roomType === 'standard' || roomType === 'premium') {
+                setLit('win-1');
+                setLit('win-3');
+            }
+            if (roomType === 'premium') {
+                setLit('win-2');
+                setLit('win-5');
+            }
+            if (wetroom) {
+                setLit('win-4');
+                setLit('win-6');
+                // Pulse wetroom window for high visibility
+                const win4 = document.getElementById('win-4');
+                if (win4) win4.classList.add('animate-pulse');
+            }
+            if (fridge) {
+                setLit('win-7');
+            }
+            if (lateHours) {
+                setLit('win-8');
+                setLit('win-9');
+                const win9 = document.getElementById('win-9');
+                if (win9) win9.classList.add('animate-pulse');
+            }
+        }
+
+        function setLit(windowId) {
+            const el = document.getElementById(windowId);
+            if (el) {
+                el.setAttribute('fill', 'var(--window-lit)');
+                el.style.filter = 'drop-shadow(0 0 6px var(--window-lit))';
+            }
+        }
+
+        // Render helper scripts
+        function updateCarrierCard(prefix, base, extra) {
+            const total = base + extra;
+            const totalEl = document.getElementById(prefix + '-total-val');
+            if (totalEl) totalEl.innerText = '£' + total.toFixed(2);
+            
+            const rowEl = document.getElementById(prefix + '-unmask-row');
+            const valEl = document.getElementById(prefix + '-unmask-val');
+            if (rowEl && valEl) {
+                if (extra > 0) {
+                    rowEl.classList.remove('hidden');
+                    valEl.innerText = '+£' + extra.toFixed(2);
+                } else {
+                    rowEl.classList.add('hidden');
+                }
+            }
+        }
+
+        // Hotel card update renderer
+        function updateHotelCard(prefix, base, extra) {
+            const total = base + extra;
+            const baseEl = document.getElementById(prefix + '-base-val');
+            const totalEl = document.getElementById(prefix + '-total-val');
+            if (baseEl) baseEl.innerText = '£' + base.toFixed(2);
+            if (totalEl) totalEl.innerText = '£' + total.toFixed(2);
+            
+            const rowEl = document.getElementById(prefix + '-unmask-row');
+            const valEl = document.getElementById(prefix + '-unmask-val');
+            if (rowEl && valEl) {
+                if (extra > 0) {
+                    rowEl.classList.remove('hidden');
+                    valEl.innerText = '+£' + extra.toFixed(2);
+                } else {
+                    rowEl.classList.add('hidden');
+                }
+            }
+        }
+
+        // Interactive Grading Pill Status Icons
+        function updateAirlineGrades(rfExtra, ejExtra, waExtra, saExtra, faExtra) {
+            const gradesMap = [
+                { id: 'rf-grade', val: rfExtra },
+                { id: 'ej-grade', val: ejExtra },
+                { id: 'wa-grade', val: waExtra },
+                { id: 'sa-grade', val: saExtra },
+                { id: 'fa-grade', val: faExtra }
+            ];
+
+            gradesMap.forEach(item => {
+                const pill = document.getElementById(item.id);
+                if (pill) {
+                    if (item.val > 40) {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-red-500/10 border border-red-500/25 text-red-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="alert-triangle" class="inline w-3 h-3 mr-1 align-middle"></i> Grade F';
+                    } else if (item.val > 15) {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="alert-circle" class="inline w-3 h-3 mr-1 align-middle"></i> Grade D';
+                    } else {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="shield-check" class="inline w-3 h-3 mr-1 align-middle"></i> Grade B';
+                    }
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        // Update Hotel Grades Pill Status Icons
+        function updateHotelGrades(maExtra, hiExtra, icExtra, hyExtra, rdExtra) {
+            const gradesMap = [
+                { id: 'ma-grade', val: maExtra },
+                { id: 'hi-grade', val: hiExtra },
+                { id: 'ic-grade', val: icExtra },
+                { id: 'hy-grade', val: hyExtra },
+                { id: 'rd-grade', val: rdExtra }
+            ];
+
+            gradesMap.forEach(item => {
+                const pill = document.getElementById(item.id);
+                if (pill) {
+                    if (item.val > 80) {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-red-500/10 border border-red-500/25 text-red-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="alert-circle" class="inline w-3 h-3 mr-1 align-middle"></i> Grade D';
+                    } else if (item.val > 20) {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25 text-amber-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="info" class="inline w-3 h-3 mr-1 align-middle"></i> Grade C';
+                    } else {
+                        pill.className = "text-[9px] tracking-wider px-2.5 py-1 rounded bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 uppercase font-extrabold";
+                        pill.innerHTML = '<i data-lucide="shield-check" class="inline w-3 h-3 mr-1 align-middle"></i> Grade B';
+                    }
+                }
+            });
+
+            lucide.createIcons();
+        }
+
+        // 3. MASCOT COMPANION LOGIC ("SKY")
+        const speechBubble = document.getElementById('mascot-speech');
+
+        const mascotPhrases = [
+            "We make sure that elderly, disabled, and first-time fliers aren't penalised with hidden fees!",
+            "Did you know Ryanair charges up to £28 extra just to sit next to your carer? Unfair!",
+            "Click Sky any time to hear travel tips!",
+            "I'm keeping a close eye on those late-checkin resort penalties!",
+            "TrueTravel is built by Lara & Tahira to make travel equitable and transparent.",
+            "Choose a filter! I will help you unmask where the corporate margin hides!"
+        ];
+
+        function updateMascotText(text) {
+            speechBubble.style.opacity = '0';
+            speechBubble.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                speechBubble.innerText = text;
+                speechBubble.style.opacity = '1';
+                speechBubble.style.transform = 'scale(1)';
+            }, 250);
+        }
+
+        function triggerMascotPhrase() {
+            const randomPhrase = mascotPhrases[Math.floor(Math.random() * mascotPhrases.length)];
+            updateMascotText(randomPhrase);
+        }
+
+        // Submit factual audit mock verification logic
+        function simulateAddReview() {
+            gainXP(50, 100);
+            updateMascotText("Amazing work! You've verified accessibility specifications and earned 50 XP!");
+        }
+
+        // Rewards Modal Triggers
+        function claimRewardsModal() {
+            document.getElementById('rewards-modal').classList.remove('hidden');
+            document.getElementById('rewards-modal').classList.add('flex');
+        }
+
+        function closeRewardsModal() {
+            document.getElementById('rewards-modal').classList.remove('flex');
+            document.getElementById('rewards-modal').classList.add('hidden');
+        }
+
+        // Run baseline setup on first load
+        runTrueCalculator();
+    </script>
+</body>
+</html>
